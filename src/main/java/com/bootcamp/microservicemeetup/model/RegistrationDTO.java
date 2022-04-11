@@ -24,4 +24,7 @@ public class RegistrationDTO {
 
     @NotEmpty
     private String registration;
+
+    @NotEmpty
+    private String password;
 }

@@ -1,6 +1,9 @@
 package com.bootcamp.microservicemeetup.controller.exceptions;
 
+import com.auth0.jwt.exceptions.JWTDecodeException;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.bootcamp.microservicemeetup.exception.BusinessException;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -19,11 +22,11 @@ public class ApiErrors {
     }
 
     public ApiErrors(BusinessException e) {
-        this.errors = Arrays.asList(e.getMessage());
+        this.errors = List.of(e.getMessage());
     }
 
     public ApiErrors(ResponseStatusException e) {
-        this.errors = Arrays.asList(e.getReason());
+        this.errors = List.of(e.getReason());
     }
 
     public List<String> getErrors() {

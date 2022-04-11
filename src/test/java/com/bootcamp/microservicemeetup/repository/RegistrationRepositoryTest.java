@@ -5,6 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
@@ -18,8 +19,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
 @DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 public class RegistrationRepositoryTest {
-
 
     @Autowired
     TestEntityManager entityManager;
@@ -27,26 +28,26 @@ public class RegistrationRepositoryTest {
     @Autowired
     RegistrationRepository repository;
 
-
     @Test
     @DisplayName("Should return true when exists an registration already created.")
     public void returnTrueWhenRegistrationExists() {
 
-        String registration = "123";
+        String registration = "teste";
 
-        Registration registration_attribute = createNewRegistration(registration);
-        entityManager.persist(registration_attribute);
+        Registration new_Registration = createNewRegistration(registration);
+        entityManager.persist(new_Registration);
 
         boolean exists = repository.existsByRegistration(registration);
 
         assertThat(exists).isTrue();
     }
 
+
     @Test
     @DisplayName("Should return false when doesn't exists an registration_attribute with a registration already created.")
     public void returnFalseWhenRegistrationAttributeDoesntExists() {
 
-        String registration = "123";
+        String registration = "teste";
 
         boolean exists = repository.existsByRegistration(registration);
 
@@ -58,7 +59,7 @@ public class RegistrationRepositoryTest {
     @DisplayName("Should get an registration by id")
     public void findByIdTest() {
 
-        Registration registration_attribute = createNewRegistration("323");
+        Registration registration_attribute = createNewRegistration("teste");
         entityManager.persist(registration_attribute);
 
         Optional<Registration> foundRegistration = repository
@@ -72,7 +73,7 @@ public class RegistrationRepositoryTest {
     @DisplayName("Should save an registration")
     public void saveRegistrationTest() {
 
-        Registration registration_attribute = createNewRegistration("323");
+        Registration registration_attribute = createNewRegistration("teste");
 
         Registration savedRegistration = repository.save(registration_attribute);
 
@@ -84,7 +85,7 @@ public class RegistrationRepositoryTest {
     @DisplayName("Should delete and registration from the base")
     public void deleteRegistation() {
 
-        Registration registration_attribute = createNewRegistration("323");
+        Registration registration_attribute = createNewRegistration("teste");
         entityManager.persist(registration_attribute);
 
         Registration foundRegistration = entityManager
@@ -95,22 +96,14 @@ public class RegistrationRepositoryTest {
                 .find(Registration.class, registration_attribute.getId());
 
         assertThat(deleteRegistration).isNull();
-
     }
-
-
-
-
-
-
-
-
-
 
     private Registration createNewRegistration(String registration) {
         return Registration.builder()
-                .name("Ana Neri")
-                .dateOfRegistration("10/10/2021")
-                .registration(registration).build();
+                .name("Isis Oliveira")
+                .dateOfRegistration("01/01/2022")
+                .registration(registration)
+                .password("123")
+                .build();
     }
 }
