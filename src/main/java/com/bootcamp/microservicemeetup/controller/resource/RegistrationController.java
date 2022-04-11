@@ -1,34 +1,20 @@
-package com.bootcamp.microservicemeetup.controller;
+package com.bootcamp.microservicemeetup.controller.resource;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.bootcamp.microservicemeetup.model.LoginDto;
-import com.bootcamp.microservicemeetup.model.RegistrationDTO;
+import com.bootcamp.microservicemeetup.controller.dto.RegistrationDTO;
 import com.bootcamp.microservicemeetup.model.entity.Registration;
 import com.bootcamp.microservicemeetup.service.RegistrationService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.transaction.TransactionSystemException;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import springfox.documentation.spring.web.json.Json;
 
 import javax.validation.Valid;
-import java.util.Collections;
-import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestController
@@ -47,7 +33,7 @@ public class RegistrationController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)// SIGNUP OK!!!
-    @ApiOperation(value = "Cadastro")
+    @ApiOperation(value = "Create a registration")
     public RegistrationDTO create(@RequestBody @Valid RegistrationDTO dto) {
 
         Registration entity = modelMapper.map(dto, Registration.class);
@@ -58,6 +44,7 @@ public class RegistrationController {
 
     @GetMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
+    @ApiOperation(value = "Get a specific registration")
     public RegistrationDTO get(@PathVariable Integer id) {
 
         return registrationService
@@ -68,13 +55,15 @@ public class RegistrationController {
 
     @DeleteMapping("{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ApiOperation(value = "Delete a specific registration")
     public void deleteByRegistrationId(@PathVariable Integer id) {
         Registration registration = registrationService.getRegistrationById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         registrationService.delete(registration);
     }
 
 
-    @PutMapping("/{id}")
+    @PutMapping("{id}")
+    @ApiOperation(value = "Update a specific registration")
     public RegistrationDTO update(@PathVariable Integer id, @RequestBody @Valid RegistrationDTO registrationDTO) {
 
         return registrationService.getRegistrationById(id).map(registration -> {
@@ -88,6 +77,7 @@ public class RegistrationController {
     }
 
     @GetMapping
+    @ApiOperation(value = "Get all registrations")
     public Page<RegistrationDTO> find(RegistrationDTO dto, Pageable pageRequest) {
         Registration filter = modelMapper.map(dto, Registration.class);
         Page<Registration> result = registrationService.find(filter, pageRequest);

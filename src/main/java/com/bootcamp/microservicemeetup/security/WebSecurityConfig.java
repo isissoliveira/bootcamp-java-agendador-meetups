@@ -35,7 +35,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/v2/*").permitAll()
                 .antMatchers("/csrf").permitAll()
                 .antMatchers("/swagger-resources/**").permitAll()
-                .antMatchers("/webjars/springfox-swagger-ui/**").permitAll()
+                .antMatchers( "/webjars/springfox-swagger-ui/**").permitAll()
                 .antMatchers(HttpMethod.POST, "/api/registration").permitAll()
                 .anyRequest().authenticated()
                 .and()
@@ -54,9 +54,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     }
 
     @Override
-    public void configure(WebSecurity web) throws Exception {
-
-    }
+    public void configure(WebSecurity web) throws Exception { }
 
     @Override
     @Bean

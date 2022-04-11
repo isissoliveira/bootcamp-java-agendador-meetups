@@ -1,4 +1,3 @@
-/*
 package com.bootcamp.microservicemeetup.config;
 
 import org.springframework.context.annotation.Bean;
@@ -24,16 +23,16 @@ public class SwaggerConfig {
         return new Docket (DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.bootcamp.microservicemeetup"))
-                .paths(regex("/api/auth.*"))
+                .paths(regex("/api/registration.*"))
                 .build()
-                .groupName("Autenticacao")
+                .groupName("Registration")
                 .apiInfo(metaInfo());
     }
 
     private ApiInfo metaInfo() {
         ApiInfo apiInfo = new ApiInfo(
-                "Auth API Rest",
-                "API Rest para autenticacao",
+                "Registration API Rest",
+                "API Rest para cadastro de registrations",
                 "1.0",
                 "Termos de Serviço",
                 new Contact("Isis Oliveira", "","isissoliveira@gmail.com"),
@@ -43,4 +42,3 @@ public class SwaggerConfig {
         return apiInfo;
     }
 }
-*/

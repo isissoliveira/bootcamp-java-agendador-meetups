@@ -3,7 +3,7 @@ package com.bootcamp.microservicemeetup.security;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
-import com.bootcamp.microservicemeetup.model.LoginDto;
+import com.bootcamp.microservicemeetup.controller.dto.LoginDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
