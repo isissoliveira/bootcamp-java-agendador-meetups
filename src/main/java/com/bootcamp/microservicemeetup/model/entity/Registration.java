@@ -11,6 +11,7 @@ import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.util.Collection;
 import java.util.Set;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -80,5 +81,8 @@ public class Registration implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+    @OneToMany(mappedBy = "registration")
+    private List<Meetup> meetups;
 
 }
