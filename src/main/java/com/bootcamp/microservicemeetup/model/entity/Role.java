@@ -20,7 +20,6 @@ public class Role implements GrantedAuthority {
     @Column(nullable = false)
     private String nomeRole;
 
-    @Column(nullable = false)
     @ManyToMany
     private List<Registration> registrations;
 

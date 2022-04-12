@@ -7,6 +7,8 @@ import com.bootcamp.microservicemeetup.model.entity.Meetup;
 import com.bootcamp.microservicemeetup.model.entity.Registration;
 import com.bootcamp.microservicemeetup.service.MeetupService;
 import com.bootcamp.microservicemeetup.service.RegistrationService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -22,22 +24,21 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("/api/meetups")
 @RequiredArgsConstructor
+@Api(value = "API Rest Meetup")
 public class MeetupController {
 
     private final MeetupService meetupService;
     private final RegistrationService registrationService;
     private final ModelMapper modelMapper;
 
-
-
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @ApiOperation(value = "Create a meetup")
     private Integer create(@RequestBody MeetupDTO meetupDTO) {
 
         Registration registration = registrationService.getRegistrationByRegistrationAttribute(meetupDTO.getRegistrationAttribute())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST));
         Meetup entity = Meetup.builder()
-                .registration(registration)
                 .event(meetupDTO.getEvent())
                 .meetupDate("10/10/2021")
                 .build();
@@ -46,8 +47,8 @@ public class MeetupController {
         return entity.getId();
     }
 
-
     @GetMapping
+    @ApiOperation(value = "Find all meetups")
     public Page<MeetupDTO> find(MeetupFilterDTO dto, Pageable pageRequest) {
         Page<Meetup> result = meetupService.find(dto, pageRequest);
         List<MeetupDTO> meetups = result
@@ -55,7 +56,7 @@ public class MeetupController {
                 .stream()
                 .map(entity -> {
 
-                    Registration registration = entity.getRegistration();
+                    List<Registration> registration = entity.getRegistrations();
                     RegistrationDTO registrationDTO = modelMapper.map(registration, RegistrationDTO.class);
 
                     MeetupDTO meetupDTO = modelMapper.map(entity, MeetupDTO.class);
@@ -65,4 +66,9 @@ public class MeetupController {
                 }).collect(Collectors.toList());
         return new PageImpl<MeetupDTO>(meetups, pageRequest, result.getTotalElements());
     }
+
+    // TODO: ALTERAR UMA MEETUP
+    //      REGRA DE NEGÓCIO: UMA MEETUP NÃO PODE SER ALTERADA SE JÁ HOUVER UMA REGISTRATION
+    // TODO: DELETAR UMA MEETUP
+    //      REGRA DE NEGÓCIO: AO DELETAR UMA MEETUP ENVIAR E-MAIL PARA TODOS OS CADASTRADOS (ADD EMAIL EM REGISTRATION)
 }

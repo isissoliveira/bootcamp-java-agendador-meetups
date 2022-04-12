@@ -47,6 +47,15 @@ public class Registration implements UserDetails {
     )
     private Set<Role> roles;
 
+    @ManyToMany
+    @JoinTable(name = "registrations_meetups",
+            joinColumns = @JoinColumn(
+                    name = "registration_id", referencedColumnName = "registration"),
+            inverseJoinColumns = @JoinColumn(
+                    name = "meetup_id", referencedColumnName = "id")
+    )
+    private Set<Meetup> meetups;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return (Collection<? extends GrantedAuthority>) this.roles;
@@ -81,8 +90,4 @@ public class Registration implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
-    @OneToMany(mappedBy = "registration")
-    private List<Meetup> meetups;
-
 }

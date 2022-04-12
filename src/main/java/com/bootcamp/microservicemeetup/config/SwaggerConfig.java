@@ -19,26 +19,52 @@ import static springfox.documentation.builders.PathSelectors.regex;
 public class SwaggerConfig {
 
     @Bean
-    public Docket authApi (){
+    public Docket docketRegistration (){
         return new Docket (DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.bootcamp.microservicemeetup"))
                 .paths(regex("/api/registration.*"))
                 .build()
                 .groupName("Registration")
-                .apiInfo(metaInfo());
+                .apiInfo(metaInfoRegistration());
     }
 
-    private ApiInfo metaInfo() {
+    @Bean
+    public Docket docketMeetup (){
+        return new Docket (DocumentationType.SWAGGER_2)
+                .select()
+                .apis(RequestHandlerSelectors.basePackage("com.bootcamp.microservicemeetup"))
+                .paths(regex("/api/meetups.*"))
+                .build()
+                .groupName("Meetup")
+                .apiInfo(metaInfoMeetup());
+    }
+
+    private ApiInfo metaInfoRegistration() {
         ApiInfo apiInfo = new ApiInfo(
                 "Registration API Rest",
                 "API Rest para cadastro de registrations",
                 "1.0",
                 "Termos de Serviço",
-                new Contact("Isis Oliveira", "","isissoliveira@gmail.com"),
+                contato,
                 "Apache License Version 2.0",
                 "", new ArrayList<VendorExtension>()
         );
         return apiInfo;
     }
+
+    private ApiInfo metaInfoMeetup() {
+        ApiInfo apiInfo = new ApiInfo(
+                "Meetup API Rest",
+                "API Rest para cadastro de meetups",
+                "1.0",
+                "Termos de Serviço",
+                contato,
+                "Apache License Version 2.0",
+                "", new ArrayList<VendorExtension>()
+        );
+        return apiInfo;
+    }
+
+    Contact contato = new Contact("Isis Oliveira", "","isissoliveira@gmail.com");
 }
