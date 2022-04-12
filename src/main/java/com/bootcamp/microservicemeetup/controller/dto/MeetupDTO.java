@@ -17,6 +17,10 @@ public class MeetupDTO {
 
     private String registrationAttribute;
 
+    private String meetupDate;
+
+    private Boolean registered;
+
     private String event;
 
     private RegistrationDTO registration;

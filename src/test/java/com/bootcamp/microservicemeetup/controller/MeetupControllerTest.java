@@ -8,6 +8,7 @@ import com.bootcamp.microservicemeetup.model.entity.Meetup;
 import com.bootcamp.microservicemeetup.model.entity.Registration;
 import com.bootcamp.microservicemeetup.service.MeetupService;
 import com.bootcamp.microservicemeetup.service.RegistrationService;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,6 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
@@ -25,8 +29,10 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 @ExtendWith(SpringExtension.class)
@@ -75,7 +81,6 @@ public class MeetupControllerTest {
 
     }
 
-
     @Test
     @DisplayName("Should return error when try to register an a meetup nonexistent")
     public void invalidRegistrationCreateMeetupTest() throws Exception {
@@ -86,7 +91,6 @@ public class MeetupControllerTest {
         BDDMockito.given(registrationService.getRegistrationByRegistrationAttribute("123")).
                 willReturn(Optional.empty());
 
-
         MockHttpServletRequestBuilder request = MockMvcRequestBuilders.post(MEETUP_API)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON)
@@ -94,10 +98,7 @@ public class MeetupControllerTest {
 
         mockMvc.perform(request)
                 .andExpect(status().isBadRequest());
-
     }
-
-
 
     @Test
     @DisplayName("Should return error when try to register a registration already register on a meetup")
@@ -124,7 +125,110 @@ public class MeetupControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    @DisplayName("Should delete a meetup")
+    public void deleteRegistration() throws Exception {
 
+        BDDMockito.given(meetupService.getById(anyInt()))
+                .willReturn(Optional.of(Meetup.builder().id(5).build()));
+
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
+                .delete(MEETUP_API.concat("/" + 5))
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(requestBuilder)
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("Should update a meetup")
+    public void updateMeetupTest() throws Exception {
+
+        Integer id = 5;
+        String json = new ObjectMapper().writeValueAsString(createObjectMeetup());
+
+        Meetup updatingMeetup =
+                Meetup.builder()
+                        .id(id)
+                        .event("Evento Fake")
+                        .meetupDate("10/10/2021")
+                        .registered(false)
+                        .build();
+
+        BDDMockito.given(meetupService.getById(anyInt()))
+                .willReturn(Optional.of(updatingMeetup));
+
+        Meetup updatedMeetup =
+                Meetup.builder()
+                        .id(id)
+                        .event("Evento Fake Alterado")
+                        .meetupDate("02/02/2021")
+                        .registered(false)
+                        .build();
+
+        BDDMockito.given(meetupService.update(updatingMeetup))
+                .willReturn(updatedMeetup);
+
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
+                .put(MEETUP_API.concat("/" + 5))
+                .contentType(json)
+                .accept(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON);
+
+        mockMvc.perform(requestBuilder)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("id").value(id))
+                .andExpect(jsonPath("event").value(createObjectMeetup().getEvent()))
+                .andExpect(jsonPath("meetupDate").value(createObjectMeetup().getMeetupDate()))
+                .andExpect(jsonPath("registered").value(false));
+    }
+
+    Meetup createObjectMeetup(){
+        return  Meetup.builder()
+                .id(5)
+                .event("Evento Fake")
+                .meetupDate("10/10/2021")
+                .registered(false)
+                .build();
+    }
+
+/*
+    @Test
+    @DisplayName("Should filter registration")
+    public void findRegistrationTest() throws Exception {
+
+        Integer id = 11;
+
+        Registration registration = Registration.builder()
+                .id(id)
+                .name(createNewRegistration().getName())
+                .dateOfRegistration(createNewRegistration().getDateOfRegistration())
+                .registration(createNewRegistration().getRegistration()).build();
+
+        BDDMockito.given(registrationService.find(Mockito.any(Registration.class), Mockito.any(Pageable.class)) )
+                .willReturn(new PageImpl<Registration>(Arrays.asList(registration), PageRequest.of(0,100), 1));
+
+
+        String queryString = String.format("?name=%s&dateOfRegistration=%s&page=0&size=100",
+                registration.getRegistration(), registration.getDateOfRegistration());
+
+
+        MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
+                .get(REGISTRATION_API.concat(queryString))
+                .accept(MediaType.APPLICATION_JSON);
+
+        mockMvc
+                .perform(requestBuilder)
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("content", Matchers.hasSize(1)))
+                .andExpect(jsonPath("totalElements"). value(1))
+                .andExpect(jsonPath("pageable.pageSize"). value(100))
+                .andExpect(jsonPath("pageable.pageNumber"). value(0));
+
+    }
+
+
+*/
 
 
 }

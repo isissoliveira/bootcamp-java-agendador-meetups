@@ -21,8 +21,7 @@ public class Meetup {
     @Column
     private String event;
 
-    @JoinColumn(name = "id_registration")
-    @ManyToOne
+
     // mtos meetups para 1 registro - registro só pode ir em um meetup
     private Registration registration;
 
