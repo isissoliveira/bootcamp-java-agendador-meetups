@@ -23,7 +23,7 @@ public class SwaggerConfig {
         return new Docket (DocumentationType.SWAGGER_2)
                 .select()
                 .apis(RequestHandlerSelectors.basePackage("com.bootcamp.microservicemeetup"))
-                .paths(regex("/api/registration.*"))
+                .paths(regex("/api/registrations.*"))
                 .build()
                 .groupName("Registration")
                 .apiInfo(metaInfoRegistration());

@@ -29,6 +29,10 @@ public class ApiErrors {
         this.errors = List.of(e.getReason());
     }
 
+    public ApiErrors(IllegalArgumentException e) {
+        this.errors = List.of(e.getMessage());
+    }
+
     public List<String> getErrors() {
         return errors;
     }

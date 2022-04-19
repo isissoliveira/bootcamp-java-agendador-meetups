@@ -63,8 +63,8 @@ public class RegistrationServiceTest {
 
         // assert
         assertThat(savedRegistration.getId()).isEqualTo(101);
-        assertThat(savedRegistration.getName()).isEqualTo("Ana Neri");
-        assertThat(savedRegistration.getDateOfRegistration()).isEqualTo("01/04/2022");
+        assertThat(savedRegistration.getName()).isEqualTo("Isis Oliveira");
+        assertThat(savedRegistration.getDateOfRegistration()).isEqualTo("01/01/2022");
         assertThat(savedRegistration.getRegistration()).isEqualTo("001");
         assertThat(savedRegistration.getPassword()).isEqualTo("123");
 
@@ -87,7 +87,7 @@ public class RegistrationServiceTest {
     }
 
     @Test
-    @DisplayName("Should get an Registration by Id")
+    @DisplayName("Should get a Registration by Id")
     public void getByRegistrationIdTest() {
 
         // cenario
@@ -109,7 +109,7 @@ public class RegistrationServiceTest {
     }
 
     @Test
-    @DisplayName("Should return empty when get an registration by id when doesn't exists")
+    @DisplayName("Should return empty when get a registration by id when doesn't exists")
     public void registrationNotFoundByIdTest() {
 
         Integer id = 11;
@@ -121,7 +121,7 @@ public class RegistrationServiceTest {
     }
 
     @Test
-    @DisplayName("Should delete an student")
+    @DisplayName("Should delete a student")
     public void deleteRegistrationTest() {
 
         Registration registration = Registration.builder().id(11).build();
@@ -132,18 +132,23 @@ public class RegistrationServiceTest {
     }
 
     @Test
-    @DisplayName("Should update an registration")
+    @DisplayName("Should update a registration")
     public void updateRegistration() {
 
         // cenario
-        Integer id = 11;
-        Registration updatingRegistration = Registration.builder().id(11).build();
-
+        Integer id = 101;
+        Registration updatingRegistration = Registration.builder()
+                .id(101)
+                .dateOfRegistration("02-02-2022")
+                .registration("101")
+                .password("111")
+                .build();
 
         // execucao
         Registration updatedRegistration = createValidRegistration();
         updatedRegistration.setId(id);
 
+        Mockito.when(repository.findById(Mockito.anyInt())).thenReturn(Optional.ofNullable(updatingRegistration));
         Mockito.when(repository.save(updatingRegistration)).thenReturn(updatedRegistration);
         Registration registration = registrationService.update(updatingRegistration);
 
@@ -181,7 +186,7 @@ public class RegistrationServiceTest {
     }
 
     @Test
-    @DisplayName("Should get an Registration model by registration attribute")
+    @DisplayName("Should get a Registration model by registration attribute")
     public void getRegistrationByRegistrationAtrb() {
 
         String registrationAttribute = "1234";

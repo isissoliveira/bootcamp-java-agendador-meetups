@@ -18,7 +18,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("/api/registration")
+@RequestMapping("/api/registrations")
 @Api(value = "API Rest Registration")
 public class RegistrationController {
 
@@ -60,7 +60,6 @@ public class RegistrationController {
         Registration registration = registrationService.getRegistrationById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         registrationService.delete(registration);
     }
-
 
     @PutMapping("{id}")
     @ApiOperation(value = "Update a specific registration")

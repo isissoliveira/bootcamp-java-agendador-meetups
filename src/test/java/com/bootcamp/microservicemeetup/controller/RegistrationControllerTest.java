@@ -43,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc(addFilters = false) // addFilters = false para não ser bloqueado pelos filtros do spring security
 public class RegistrationControllerTest {
 
-    static String REGISTRATION_API = "/api/registration";
+    static String REGISTRATION_API = "/api/registrations";
 
     @Autowired
     MockMvc mockMvc;
@@ -207,9 +207,7 @@ public class RegistrationControllerTest {
     @DisplayName("Should update when registration info")
     public void updateRegistrationTest() throws Exception {
 
-        Integer id = 11;
-        String json = new ObjectMapper().writeValueAsString(createNewRegistration());
-
+        Integer id = 101;
         Registration previousRegistration =
                 Registration.builder()
                         .id(id)
@@ -232,12 +230,14 @@ public class RegistrationControllerTest {
                         .build();
 
         BDDMockito.given(registrationService
-                        .update(previousRegistration))
+                        .update(Mockito.any()))
                 .willReturn(updatedRegistration);
 
+        String json = new ObjectMapper().writeValueAsString(createNewRegistration());
+
         MockHttpServletRequestBuilder requestBuilder = MockMvcRequestBuilders
-                .put(REGISTRATION_API.concat("/" + 1))
-                .contentType(json)
+                .put(REGISTRATION_API.concat("/" + 101))
+                .content(json)
                 .accept(MediaType.APPLICATION_JSON)
                 .contentType(MediaType.APPLICATION_JSON);
 
@@ -265,7 +265,7 @@ public class RegistrationControllerTest {
                 .contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(requestBuilder)
-                .andExpect(status().isNotFound());
+                .andExpect(status().isBadRequest());
     }
 
     @Test

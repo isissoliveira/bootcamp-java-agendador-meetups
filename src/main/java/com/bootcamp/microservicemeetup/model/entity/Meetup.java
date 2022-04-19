@@ -16,19 +16,16 @@ import java.util.List;
 public class Meetup {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Integer id;
 
     @Column(nullable = false)
     private String event;
 
     @Column
-    @ManyToMany
+    @ManyToMany(mappedBy = "")
     private List<Registration> registrations;
 
     @Column(nullable = false)
     private String meetupDate;
-
-    @Column
-    private Boolean registered;
 }

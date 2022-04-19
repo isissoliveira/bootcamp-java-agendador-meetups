@@ -36,7 +36,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/csrf").permitAll()
                 .antMatchers("/swagger-resources/**").permitAll()
                 .antMatchers( "/webjars/springfox-swagger-ui/**").permitAll()
-                .antMatchers(HttpMethod.POST, "/api/registration").permitAll()
+                .antMatchers(HttpMethod.POST, "/api/registrations").permitAll()
                 .anyRequest().authenticated()
                 .and()
                 .addFilter(new JWTAutenticationFilter(authenticationManager()))

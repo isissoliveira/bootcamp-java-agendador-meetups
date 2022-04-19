@@ -32,7 +32,7 @@ public class Registration implements UserDetails {
     @Column(name = "data_cadastro", nullable = false)
     private String dateOfRegistration;
 
-    @Column( nullable = false)
+    @Column( nullable = false, unique = true)
     private String registration;
 
     @Column(name = "senha", nullable = false)
@@ -45,7 +45,7 @@ public class Registration implements UserDetails {
             inverseJoinColumns = @JoinColumn(
                     name = "role_id", referencedColumnName = "nomeRole")
     )
-    private Set<Role> roles;
+    private List<Role> roles;
 
     @ManyToMany
     @JoinTable(name = "registrations_meetups",
@@ -54,7 +54,7 @@ public class Registration implements UserDetails {
             inverseJoinColumns = @JoinColumn(
                     name = "meetup_id", referencedColumnName = "id")
     )
-    private Set<Meetup> meetups;
+    private List<Meetup> meetups;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

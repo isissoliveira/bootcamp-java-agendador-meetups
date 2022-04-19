@@ -36,5 +36,11 @@ public class ApplicationControllerAdvice {
         return new ResponseEntity(new ApiErrors(ex), ex.getStatus());
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public ApiErrors handleIllegalArgumentException(IllegalArgumentException ex) {
+        return new ApiErrors(ex);
+    }
+
 
 }
