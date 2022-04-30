@@ -152,7 +152,6 @@ public class RegistrationControllerTest {
                 .andExpect(jsonPath("id").value(id))
                 .andExpect(jsonPath("name").value(createNewRegistration().getName()))
                 .andExpect(jsonPath("dateOfRegistration").value(createNewRegistration().getDateOfRegistration()))
-                .andExpect(jsonPath("password").value(createNewRegistration().getPassword()))
                 .andExpect(jsonPath("registration").value(createNewRegistration().getRegistration()));
 
     }
@@ -246,8 +245,7 @@ public class RegistrationControllerTest {
                 .andExpect(jsonPath("id").value(id))
                 .andExpect(jsonPath("name").value(createNewRegistration().getName()))
                 .andExpect(jsonPath("dateOfRegistration").value(createNewRegistration().getDateOfRegistration()))
-                .andExpect(jsonPath("registration").value("001"))
-                .andExpect(jsonPath("password").value("123"));
+                .andExpect(jsonPath("registration").value("001"));
     }
 
     @Test

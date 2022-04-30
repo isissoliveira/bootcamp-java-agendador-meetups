@@ -49,6 +49,11 @@ public class MeetupServiceImpl implements MeetupService {
     }
 
     @Override
+    public Optional<Meetup> getMeetupByEvent(String event) {
+        return this.repository.findByEvent(event);
+    }
+
+    @Override
     public Meetup update(Meetup meetup) {
         if (meetup == null || meetup.getId() == null) {
             throw new IllegalArgumentException("Meetup id cannot be null!");
@@ -56,10 +61,6 @@ public class MeetupServiceImpl implements MeetupService {
         Optional<Meetup> original_meetup = repository.findById(meetup.getId());
         if(!original_meetup.isPresent()){
             throw new IllegalArgumentException("Meetup not found!");
-        }
-
-        if(!original_meetup.get().getRegistrations().isEmpty()){
-            throw new BusinessException("Meetup already has registrations!");
         }
         return this.repository.save(meetup);
     }

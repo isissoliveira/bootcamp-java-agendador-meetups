@@ -1,6 +1,8 @@
 package com.bootcamp.microservicemeetup.controller.resource;
 
 import com.bootcamp.microservicemeetup.controller.dto.RegistrationDTO;
+import com.bootcamp.microservicemeetup.controller.dto.RegistrationFilterDTO;
+import com.bootcamp.microservicemeetup.controller.dto.RegistrationResponseDTO;
 import com.bootcamp.microservicemeetup.model.entity.Registration;
 import com.bootcamp.microservicemeetup.service.RegistrationService;
 import io.swagger.annotations.Api;
@@ -34,23 +36,51 @@ public class RegistrationController {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)// SIGNUP OK!!!
     @ApiOperation(value = "Create a registration")
-    public RegistrationDTO create(@RequestBody @Valid RegistrationDTO dto) {
+    public RegistrationResponseDTO create(@RequestBody @Valid RegistrationDTO dto) {
 
         Registration entity = modelMapper.map(dto, Registration.class);
         entity = registrationService.save(entity);
 
-        return modelMapper.map(entity, RegistrationDTO.class);
+        return modelMapper.map(entity, RegistrationResponseDTO.class);
+    }
+
+    @GetMapping
+    @ApiOperation(value = "Get all registrations")
+    public Page<RegistrationResponseDTO> find(RegistrationDTO dto, Pageable pageRequest) {
+        Registration filter = modelMapper.map(dto, Registration.class);
+        Page<Registration> result = registrationService.find(filter, pageRequest);
+
+        List<RegistrationResponseDTO> list = result.getContent()
+                .stream()
+                .map(entity -> modelMapper.map(entity, RegistrationResponseDTO.class))
+                .collect(Collectors.toList());
+
+        return new PageImpl<RegistrationResponseDTO>(list, pageRequest, result.getTotalElements());
     }
 
     @GetMapping("{id}")
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(value = "Get a specific registration")
-    public RegistrationDTO get(@PathVariable Integer id) {
+    public RegistrationResponseDTO get(@PathVariable Integer id) {
 
         return registrationService
                 .getRegistrationById(id)
-                .map(registration -> modelMapper.map(registration, RegistrationDTO.class))
+                .map(registration -> modelMapper.map(registration, RegistrationResponseDTO.class))
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    @PutMapping("{id}")
+    @ApiOperation(value = "Update a specific registration")
+    public RegistrationResponseDTO update(@PathVariable Integer id, @RequestBody @Valid RegistrationDTO registrationDTO) {
+
+        return registrationService.getRegistrationById(id).map(registration -> {
+            registration.setName(registrationDTO.getName());
+            registration.setDateOfRegistration(registrationDTO.getDateOfRegistration());
+            registration.setPassword(registrationDTO.getPassword());
+            registration = registrationService.update(registration);
+
+            return modelMapper.map(registration, RegistrationResponseDTO.class);
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     @DeleteMapping("{id}")
@@ -59,33 +89,5 @@ public class RegistrationController {
     public void deleteByRegistrationId(@PathVariable Integer id) {
         Registration registration = registrationService.getRegistrationById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         registrationService.delete(registration);
-    }
-
-    @PutMapping("{id}")
-    @ApiOperation(value = "Update a specific registration")
-    public RegistrationDTO update(@PathVariable Integer id, @RequestBody @Valid RegistrationDTO registrationDTO) {
-
-        return registrationService.getRegistrationById(id).map(registration -> {
-            registration.setName(registrationDTO.getName());
-            registration.setDateOfRegistration(registrationDTO.getDateOfRegistration());
-            registration.setPassword(registrationDTO.getPassword());
-            registration = registrationService.update(registration);
-
-            return modelMapper.map(registration, RegistrationDTO.class);
-        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-    }
-
-    @GetMapping
-    @ApiOperation(value = "Get all registrations")
-    public Page<RegistrationDTO> find(RegistrationDTO dto, Pageable pageRequest) {
-        Registration filter = modelMapper.map(dto, Registration.class);
-        Page<Registration> result = registrationService.find(filter, pageRequest);
-
-        List<RegistrationDTO> list = result.getContent()
-                .stream()
-                .map(entity -> modelMapper.map(entity, RegistrationDTO.class))
-                .collect(Collectors.toList());
-
-        return new PageImpl<RegistrationDTO>(list, pageRequest, result.getTotalElements());
     }
 }

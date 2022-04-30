@@ -2,7 +2,6 @@ package com.bootcamp.microservicemeetup.controller.resource;
 
 import com.bootcamp.microservicemeetup.controller.dto.MeetupDTO;
 import com.bootcamp.microservicemeetup.controller.dto.MeetupFilterDTO;
-import com.bootcamp.microservicemeetup.controller.dto.RegistrationDTO;
 import com.bootcamp.microservicemeetup.controller.dto.RegistrationFilterDTO;
 import com.bootcamp.microservicemeetup.exception.BusinessException;
 import com.bootcamp.microservicemeetup.model.entity.Meetup;
@@ -41,7 +40,9 @@ public class MeetupController {
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(value = "Create a meetup")
     private MeetupDTO create(@RequestBody MeetupDTO meetupDTO) {
-
+        if (meetupService.getMeetupByEvent(meetupDTO.getEvent()).isPresent()){
+            throw new BusinessException("A Meetup já existe!");
+        }
         Meetup entity = Meetup.builder()
                 .event(meetupDTO.getEvent())
                 .meetupDate(meetupDTO.getMeetupDate())
@@ -81,7 +82,9 @@ public class MeetupController {
     public MeetupDTO update(@PathVariable Integer id, @RequestBody @Valid MeetupDTO meetupDTO) {
 
         return meetupService.getMeetupById(id).map(meetup -> {
-
+            if(!meetup.getRegistrations().isEmpty()){
+                throw new BusinessException("Meetup already has registrations!");
+            }
             meetup.setEvent(meetupDTO.getEvent());
             meetup.setMeetupDate(meetupDTO.getMeetupDate());
 
@@ -95,34 +98,56 @@ public class MeetupController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ApiOperation(value = "Delete a specific meetup")
     public void deleteById(@PathVariable Integer id) {
-        meetupService.getMeetupById(id).map(meetup -> {
-            if (!meetup.getRegistrations().isEmpty()) {
-                throw new BusinessException("A Meetup não pode ser removida. Há Registrations adicionadas!");
-            }
-            meetupService.delete(id);
-            return null;
-        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        Meetup meetup = meetupService.getMeetupById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+        if (!meetup.getRegistrations().isEmpty()) {
+            throw new BusinessException("A Meetup não pode ser removida. Há Registrations adicionadas!");
+        }
+        meetupService.delete(id);
     }
-
 
     @PutMapping("{id}/subscribe")
     @ApiOperation(value = "Add a Registration to a specific Meetup")
-    public MeetupDTO addRegistration(@PathVariable Integer id, @RequestBody @Valid RegistrationFilterDTO registrationFilterDTO) {
+    public MeetupDTO subscribe(@PathVariable Integer id, @RequestBody @Valid RegistrationFilterDTO registrationFilterDTO) {
 
         return meetupService.getMeetupById(id).map(meetup -> {
             Optional<Registration> registration = registrationService.getRegistrationById(registrationFilterDTO.getId());
-            //Registration registration = modelMapper.map(registrationFilterDTO, Registration.class);
+
             if (!registration.isPresent()) {
-                throw new BusinessException("Registration não encontrada!");
+                throw new IllegalArgumentException("Registration não encontrada!");
             }
 
             if (meetup.getRegistrations().contains(registration.get())) {
                 throw new BusinessException("A Meetup já contém a registration informada!");
             }
+            for ( Meetup meet:registration.get().getMeetups()) {
+                if(meet.getMeetupDate().equals(meetup.getMeetupDate())){
+                    throw new BusinessException("A Registration já está inscrita em outra meetup no dia "+ meetup.getMeetupDate());
+                }
+            }
             meetup.getRegistrations().add(registration.get());
             registration.get().getMeetups().add(meetup);
 
-            meetup = meetupService.save(meetup);
+            meetup = meetupService.update(meetup);
+            registrationService.update(registration.get());
+
+            return modelMapper.map(meetup, MeetupDTO.class);
+        }).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    @PutMapping("{id}/unsubscribe")
+    @ApiOperation(value = "Remove a Registration from a specific Meetup")
+    public MeetupDTO unsubscribe(@PathVariable Integer id, @RequestBody @Valid RegistrationFilterDTO registrationFilterDTO) {
+
+        return meetupService.getMeetupById(id).map(meetup -> {
+            Optional<Registration> registration = registrationService.getRegistrationById(registrationFilterDTO.getId());
+
+            if (!registration.isPresent()) {
+                throw new IllegalArgumentException("Registration não encontrada!");
+            }
+            meetup.getRegistrations().remove(registration.get());
+            registration.get().getMeetups().remove(meetup);
+
+            meetup = meetupService.update(meetup);
             registrationService.update(registration.get());
 
             return modelMapper.map(meetup, MeetupDTO.class);

@@ -13,10 +13,11 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 @Entity
+@Table(name = "meetups")
 public class Meetup {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(nullable = false)
@@ -28,4 +29,5 @@ public class Meetup {
 
     @Column(nullable = false)
     private String meetupDate;
+
 }

@@ -59,6 +59,18 @@ public class MeetupRepositoryTest {
     }
 
     @Test
+    @DisplayName("Should get a meetup by event")
+    public void findByEventTest() {
+        Meetup new_meetup = createNewMeetup();
+        Meetup created_meetup = entityManager.persist(new_meetup);
+
+        Optional<Meetup> foundMeetup = repository
+                .findByEvent(created_meetup.getEvent());
+
+        assertThat(foundMeetup.isPresent()).isTrue();
+    }
+
+    @Test
     @DisplayName("Should save a meetup")
     public void saveRegistrationTest() {
         Meetup new_meetup = createNewMeetup();

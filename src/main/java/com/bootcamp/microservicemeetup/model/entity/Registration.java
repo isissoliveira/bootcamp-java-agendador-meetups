@@ -22,8 +22,7 @@ import java.util.List;
 public class Registration implements UserDetails {
 
     @Id
-    @Column
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
     @Column(name = "nome", nullable = false)
@@ -50,7 +49,7 @@ public class Registration implements UserDetails {
     @ManyToMany
     @JoinTable(name = "registrations_meetups",
             joinColumns = @JoinColumn(
-                    name = "registration_id", referencedColumnName = "registration"),
+                    name = "registration_id", referencedColumnName = "id"),
             inverseJoinColumns = @JoinColumn(
                     name = "meetup_id", referencedColumnName = "id")
     )
@@ -90,4 +89,5 @@ public class Registration implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
 }

@@ -15,6 +15,8 @@ public interface MeetupService {
 
     Optional<Meetup> getMeetupById(Integer id);
 
+    Optional<Meetup> getMeetupByEvent(String event);
+
     Meetup update(Meetup loan);
 
     void delete(Integer id);

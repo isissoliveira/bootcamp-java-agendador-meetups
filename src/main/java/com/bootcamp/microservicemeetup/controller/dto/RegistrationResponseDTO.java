@@ -6,12 +6,13 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RegistrationFilterDTO {
+public class RegistrationResponseDTO {
 
     private Integer id;
 
@@ -23,4 +24,6 @@ public class RegistrationFilterDTO {
 
     @NotEmpty
     private String registration;
+
+    private List<MeetupFilterDTO> meetups;
 }

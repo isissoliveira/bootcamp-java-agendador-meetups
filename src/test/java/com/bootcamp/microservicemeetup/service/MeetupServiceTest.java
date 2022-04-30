@@ -94,6 +94,17 @@ public class MeetupServiceTest {
     }
 
     @Test
+    @DisplayName("Should get Meetup by Event")
+    public void getMeetupByEvent() {
+        Meetup meetup = createMeetup();
+        Mockito.when(meetupRepository.findByEvent(Mockito.anyString())).thenReturn(Optional.ofNullable(meetup));
+
+        Optional<Meetup> resultado = meetupService.getMeetupByEvent(meetup.getEvent());
+
+        assertThat(resultado).isEqualTo(Optional.of(meetup));
+    }
+
+    @Test
     @DisplayName("Should update a Meetup")
     public void update() {
         Meetup meetup = createMeetupWithoutRegistrations();
@@ -139,21 +150,6 @@ public class MeetupServiceTest {
         assertThat(exception)
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessage("Meetup not found!");
-
-        Mockito.verify(meetupRepository, Mockito.never()).save(meetup);
-    }
-
-    @Test
-    @DisplayName("Should throw BusinessException when try to update a Meetup with Registrations subscribed")
-    public void notUpdateWithRegistrations() {
-        Meetup meetup = createMeetup();
-
-        Mockito.when(meetupRepository.findById(Mockito.anyInt())).thenReturn(Optional.ofNullable(meetup));
-
-        Throwable exception = Assertions.catchThrowable( () -> meetupService.update(meetup)) ;
-        assertThat(exception)
-                .isInstanceOf(BusinessException.class)
-                .hasMessage("Meetup already has registrations!");
 
         Mockito.verify(meetupRepository, Mockito.never()).save(meetup);
     }
