@@ -1,7 +1,5 @@
 package com.bootcamp.microservicemeetup.controller.dto;
 
-import com.bootcamp.microservicemeetup.model.entity.Meetup;
-import com.bootcamp.microservicemeetup.model.entity.Registration;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +12,7 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class RegistrationDTO {
+public class RegistrationResponseDTO {
 
     private Integer id;
 
@@ -26,9 +24,6 @@ public class RegistrationDTO {
 
     @NotEmpty
     private String registration;
-
-    @NotEmpty
-    private String password;
 
     private List<MeetupFilterDTO> meetups;
 }

@@ -9,12 +9,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -24,6 +29,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
@@ -31,18 +37,20 @@ public class RegistrationServiceTest {
 
     RegistrationService registrationService;
 
+    PasswordEncoder passwordEncoder;
+
     @MockBean
     RegistrationRepository repository;
 
-
     @BeforeEach
     public void setUp() {
-        this.registrationService = new RegistrationServiceImpl(repository);
+        this.passwordEncoder = new BCryptPasswordEncoder();
+        this.registrationService = new RegistrationServiceImpl(repository, passwordEncoder);
     }
 
     @Test
     @DisplayName("Should save an registration")
-    public void saveStudent() {
+    public void saveRegistration() {
 
         // cenario
         Registration registration = createValidRegistration();
@@ -51,13 +59,14 @@ public class RegistrationServiceTest {
         Mockito.when(repository.existsByRegistration(Mockito.anyString())).thenReturn(false);
         Mockito.when(repository.save(registration)).thenReturn(createValidRegistration());
 
-        Registration savedRegistration = registrationService.save(registration);
+         Registration savedRegistration = registrationService.save(registration);
 
         // assert
         assertThat(savedRegistration.getId()).isEqualTo(101);
-        assertThat(savedRegistration.getName()).isEqualTo("Ana Neri");
-        assertThat(savedRegistration.getDateOfRegistration()).isEqualTo("01/04/2022");
+        assertThat(savedRegistration.getName()).isEqualTo("Isis Oliveira");
+        assertThat(savedRegistration.getDateOfRegistration()).isEqualTo("01/01/2022");
         assertThat(savedRegistration.getRegistration()).isEqualTo("001");
+        assertThat(savedRegistration.getPassword()).isEqualTo("123");
 
     }
 
@@ -78,7 +87,7 @@ public class RegistrationServiceTest {
     }
 
     @Test
-    @DisplayName("Should get an Registration by Id")
+    @DisplayName("Should get a Registration by Id")
     public void getByRegistrationIdTest() {
 
         // cenario
@@ -100,7 +109,7 @@ public class RegistrationServiceTest {
     }
 
     @Test
-    @DisplayName("Should return empty when get an registration by id when doesn't exists")
+    @DisplayName("Should return empty when get a registration by id when doesn't exists")
     public void registrationNotFoundByIdTest() {
 
         Integer id = 11;
@@ -112,7 +121,7 @@ public class RegistrationServiceTest {
     }
 
     @Test
-    @DisplayName("Should delete an student")
+    @DisplayName("Should delete a student")
     public void deleteRegistrationTest() {
 
         Registration registration = Registration.builder().id(11).build();
@@ -123,18 +132,23 @@ public class RegistrationServiceTest {
     }
 
     @Test
-    @DisplayName("Should update an registration")
+    @DisplayName("Should update a registration")
     public void updateRegistration() {
 
         // cenario
-        Integer id = 11;
-        Registration updatingRegistration = Registration.builder().id(11).build();
-
+        Integer id = 101;
+        Registration updatingRegistration = Registration.builder()
+                .id(101)
+                .dateOfRegistration("02-02-2022")
+                .registration("101")
+                .password("111")
+                .build();
 
         // execucao
         Registration updatedRegistration = createValidRegistration();
         updatedRegistration.setId(id);
 
+        Mockito.when(repository.findById(Mockito.anyInt())).thenReturn(Optional.ofNullable(updatingRegistration));
         Mockito.when(repository.save(updatingRegistration)).thenReturn(updatedRegistration);
         Registration registration = registrationService.update(updatingRegistration);
 
@@ -143,7 +157,7 @@ public class RegistrationServiceTest {
         assertThat(registration.getName()).isEqualTo(updatedRegistration.getName());
         assertThat(registration.getDateOfRegistration()).isEqualTo(updatedRegistration.getDateOfRegistration());
         assertThat(registration.getRegistration()).isEqualTo(updatedRegistration.getRegistration());
-
+        assertThat(registration.getPassword()).isEqualTo(updatedRegistration.getPassword());
     }
 
     @Test
@@ -172,7 +186,7 @@ public class RegistrationServiceTest {
     }
 
     @Test
-    @DisplayName("Should get an Registration model by registration attribute")
+    @DisplayName("Should get a Registration model by registration attribute")
     public void getRegistrationByRegistrationAtrb() {
 
         String registrationAttribute = "1234";
@@ -190,15 +204,13 @@ public class RegistrationServiceTest {
 
     }
 
-
     private Registration createValidRegistration() {
         return Registration.builder()
                 .id(101)
-                .name("Ana Neri")
-                .dateOfRegistration("01/04/2022")
+                .name("Isis Oliveira")
+                .dateOfRegistration("01/01/2022")
                 .registration("001")
+                .password("123")
                 .build();
     }
-
-
 }
