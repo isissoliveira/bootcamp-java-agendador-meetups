@@ -397,18 +397,20 @@ public class MeetupControllerTest {
                 .andExpect(status().isBadRequest());
     }
 
-
     @Test
     @DisplayName("Should unsubscribe on a meetup")
     public void unsubscribe() throws Exception {
-        Meetup meetup = createMeetup();
+        Meetup meetup = createValidMeetup();
+        Registration registration = createValidRegistration();
+        meetup.getRegistrations().add(registration);
+        registration.getMeetups().add(meetup);
+
+        Meetup updated_meetup = createValidMeetup();
+
         RegistrationFilterDTO registrationFilterDTO = createValidRegistrationFilterDTO();
 
-        Meetup updated_meetup = createMeetup();
-        updated_meetup.setRegistrations(new ArrayList<Registration>());
-
         BDDMockito.given(meetupService.getMeetupById(Mockito.anyInt())).willReturn(Optional.ofNullable(meetup));
-        BDDMockito.given(registrationService.getRegistrationById(Mockito.anyInt())).willReturn(Optional.ofNullable(createValidRegistration()));
+        BDDMockito.given(registrationService.getRegistrationById(Mockito.anyInt())).willReturn(Optional.ofNullable(registration));
 
         BDDMockito.given(meetupService.update(meetup)).willReturn(updated_meetup);
 
@@ -423,11 +425,53 @@ public class MeetupControllerTest {
         mockMvc
                 .perform(request)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("id").value(updated_meetup.getId()))
-                .andExpect(jsonPath("registrations[0]").value(null));
+                .andExpect(jsonPath("id").value(updated_meetup.getId()));
     }
 
+    @Test
+    @DisplayName("Should not unsubscribe on a meetup when registration not found")
+    public void notUnsubscribeNotFoundRegistration() throws Exception {
+        Meetup meetup = createMeetup();
 
+        RegistrationFilterDTO registrationFilterDTO = createValidRegistrationFilterDTO();
+
+        BDDMockito.given(meetupService.getMeetupById(Mockito.anyInt())).willReturn(Optional.ofNullable(meetup));
+        BDDMockito.given(registrationService.getRegistrationById(Mockito.anyInt())).willReturn(Optional.ofNullable(null));
+
+        String json = new ObjectMapper().writeValueAsString(registrationFilterDTO);
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .put(MEETUP_API.concat("/" + meetup.getId() + "/unsubscribe"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        mockMvc
+                .perform(request)
+                .andExpect(status().isNotFound());
+    }
+
+    @Test
+    @DisplayName("Should not unsubscribe on a non existing meetup")
+    public void notUnsubscribeNotFound() throws Exception {
+        Meetup meetup = createMeetup();
+
+        RegistrationFilterDTO registrationFilterDTO = createValidRegistrationFilterDTO();
+
+        BDDMockito.given(meetupService.getMeetupById(Mockito.anyInt())).willReturn(Optional.ofNullable(null));
+
+        String json = new ObjectMapper().writeValueAsString(registrationFilterDTO);
+
+        MockHttpServletRequestBuilder request = MockMvcRequestBuilders
+                .put(MEETUP_API.concat("/" + meetup.getId() + "/unsubscribe"))
+                .contentType(MediaType.APPLICATION_JSON)
+                .accept(MediaType.APPLICATION_JSON)
+                .content(json);
+
+        mockMvc
+                .perform(request)
+                .andExpect(status().isNotFound());
+    }
 
     private Meetup createMeetup() {
         return Meetup.builder()
@@ -435,6 +479,15 @@ public class MeetupControllerTest {
                 .event("Evento teste")
                 .meetupDate("01/01/2022")
                 .registrations(List.of(createValidRegistration()))
+                .build();
+    }
+
+    private Meetup createValidMeetup() {
+        return Meetup.builder()
+                .id(99)
+                .event("Evento teste")
+                .meetupDate("01/01/2022")
+                .registrations(new ArrayList<Registration>())
                 .build();
     }
 

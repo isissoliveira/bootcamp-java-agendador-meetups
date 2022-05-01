@@ -108,12 +108,7 @@ public class MeetupServiceTest {
     @DisplayName("Should update a Meetup")
     public void update() {
         Meetup meetup = createMeetupWithoutRegistrations();
-        Meetup newMeetup = Meetup.builder()
-                .id(meetup.getId())
-                .event("Updated")
-                .meetupDate("01/01/2025")
-                .registrations(Collections.emptyList())
-                .build();
+        Meetup newMeetup = createMeetup();
 
         Mockito.when(meetupRepository.findById(Mockito.anyInt())).thenReturn(Optional.ofNullable(meetup));
         Mockito.when(meetupRepository.save(meetup)).thenReturn(newMeetup);
